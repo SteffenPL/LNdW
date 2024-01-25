@@ -137,7 +137,7 @@ class Contacts {
 }
 
 
-let N = 300;
+let N = 120;
 let first_step = true;
 function init() {
   first_step = true
