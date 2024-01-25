@@ -137,7 +137,7 @@ class Contacts {
 }
 
 
-let N = 120;
+let N = 300;
 let first_step = true;
 function init() {
   first_step = true
@@ -167,24 +167,26 @@ function init() {
     case 1:
       walls = [
         {pos: createVector(x(50), y(25)), normal: createVector(0.0, 1.0), l: x(90)},
-       {pos: createVector(x(25), y(80)), normal: createVector(0.0, 1.0).rotate(radians(-0)), l: x(40)},
-        {pos: createVector(x(75), y(80)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
-        {pos: createVector(x(50), y(70)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
+       //{pos: createVector(x(25), y(80)), normal: createVector(0.0, 1.0).rotate(radians(-0)), l: x(40)},
+       // {pos: createVector(x(75), y(80)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
+       // {pos: createVector(x(50), y(70)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
        {pos: createVector(x(50), y(95)), normal: createVector(0.0, -1.0), l: x(90)},
         {pos: createVector(x(5), y(60)), normal: createVector(1.0, 0.0), l: y(70)},
         {pos: createVector(x(95), y(60)), normal: createVector(-1.0, 0.0), l: y(70)}]
       
-      grads = {pos: createVector(x(50), y(40))};
+      grads = {pos: createVector(x(50), y(60))};
 
       cells.length = 0;
       const N1 = round(N/2);
       for(let i = 0; i < N1; i++){
         cells.push( new Cell(0) );
-        cells[i].pos.y = random(y(80),y(90));
+        cells[i].pos.x = random(x(30),x(60));
+        cells[i].pos.y = random(y(30),y(90));
       }
       for(let i = N1; i < N; i++){
         cells.push( new Cell(1) );
-        cells[i].pos.y = random(y(80),y(90));
+        cells[i].pos.x = random(x(40),x(70));
+        cells[i].pos.y = random(y(30),y(90));
       }
 
       labels = ["Abstoßung",
@@ -269,11 +271,10 @@ function onEnabled() {
 
  // Display available MIDI input devices
  if (!controller) {
-   document.body.innerHTML+= "No device detected.";
+   //document.body.innerHTML+= "No device detected.";
    return false;
  }
   
-
  controller.addListener("controlchange", e => {
       document.getElementById("midi_display").innerHTML = `Last change: CC ${e.controller.number}, value =  ${e.value} <br>`;
 
