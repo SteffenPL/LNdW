@@ -256,7 +256,7 @@ function setup() {
   init();
 }
 
- /*// Enable WebMidi.js and trigger the onEnabled() function when ready
+ // Enable WebMidi.js and trigger the onEnabled() function when ready
  WebMidi
  .enable()
  .then(onEnabled)
@@ -275,31 +275,31 @@ function onEnabled() {
   
 
  controller.addListener("controlchange", e => {
-      //document.getElementById("midi_display").innerHTML = `Last change: CC ${e.controller.number}, value =  ${e.value} <br>`;
+      document.getElementById("midi_display").innerHTML = `Last change: CC ${e.controller.number}, value =  ${e.value} <br>`;
 
       const cc = e.controller.number;
-      if( cc == 11 ) {
+      if( cc == 20 ) {
         sl_1.val = e.value;
       }
-      if( cc == 12 ) {
+      if( cc == 21 ) {
         sl_2.val = e.value;
       }
-      if( cc == 13 ) {
+      if( cc == 22 ) {
         sl_3.val = e.value;
       }
-      if( cc == 14 ) {
+      if( cc == 23 ) {
         sl_4.val = e.value;
       }
-      if( cc == 15 ) {
+      if( cc == 24 ) {
         sl_5.val = e.value;
       }
-      if( cc == 16 ) {
+      if( cc == 25 ) {
         sl_6.val = e.value;
       }
-      if( cc == 17 ) {
+      if( cc == 26 ) {
         sl_7.val = e.value;
       }
-      if( cc == 18 ) {
+      if( cc == 27 ) {
         sl_8.val = e.value;
       }
 
@@ -330,7 +330,7 @@ function onEnabled() {
       }
   });
 }
-*/
+
 
 let t = 0.0;
 
