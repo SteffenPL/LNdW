@@ -259,13 +259,75 @@ function setup() {
 }
 
  // Enable WebMidi.js and trigger the onEnabled() function when ready
- WebMidi
- .enable()
- .then(onEnabled)
- .catch(err => alert(err));
+//  WebMidi
+//  .enable()
+//  .then(onEnabled)
+//  .catch(err => alert(err));
+
+ window.navigator.requestMIDIAccess({sysex:false}).then(onEnableOldAPI);
+ let midiAccess;
+
+ function setupEventHandler() {
+  var inputs = [];
+  var iter = midiAccess.inputs.values();
+  for (var o = iter.next(); !o.done; o = iter.next()) {
+      inputs.push(o.value);
+  }
+
+  for (var port = 0; port < inputs.length; port++) {
+      inputs[port].onmidimessage = function (event) {
+      };
+
+      inputs[port].onstatechange = function (event) {
+      };
+  }
+  midiInputs = inputs;
+}
 
 
-// Function triggered when WebMidi.js is ready
+ function onEnableOldAPI(access) {
+  midiAccess = access;
+  midiAccess.onstatechange = function(event) {
+      var port = event.port;
+
+      if (port.type == "input") {
+          port.onmidimessage = function (event) {
+            if( event.data[0] == 186 ) {
+              let cc = event.data[1];
+              let val = event.data[2] / 127;
+
+              if( cc == 20 ) {
+                sl_1.val = val;
+              }
+              if( cc == 21 ) {
+                sl_2.val = val;
+              }
+              if( cc == 22 ) {
+                sl_3.val = val;
+              }
+              if( cc == 23 ) {
+                sl_4.val = val;
+              }
+              if( cc == 24 ) {
+                sl_5.val = val;
+              }
+              if( cc == 25 ) {
+                sl_6.val = val;
+              }
+              if( cc == 26 ) {
+                sl_7.val = val;
+              }
+              if( cc == 27 ) {
+                sl_8.val = val;
+              }
+            }
+          };
+      }
+  };
+  setupEventHandler();
+ }
+
+ // Function triggered when WebMidi.js is ready
 function onEnabled() {
   const controller = WebMidi.getInputByName("X-TOUCH MINI")
 
