@@ -1,8 +1,8 @@
 
 // global (constant) parameters 
 const s = 20;
-const w = 1280;
-const h = 768;
+const w = 2732; // 1280;
+const h = 2000;// 768;
 const pv = p5.Vector;
 
 function x(z) {
@@ -13,6 +13,7 @@ function y(z) {
   return map(z, 0, 100, 0, h);
 }
 
+let center;
 let cells = [], walls = [], cnts, grads, 
 labels = ["1","2","3","4","5","6","7","8",];
 let gui, 
@@ -56,11 +57,11 @@ class Cell {
     this.mode = 0;
     if( t == 0 ) {
       this.pos = createVector(random(0, width/2), random(100, height));
-      this.col = {r: 80, g: 150, b: 50};
+      this.col = {r: 50, g: 180, b: 50};
     }
     else{
       this.pos = createVector(random(width/2, width), random(100, height));
-      this.col = {r: 150, g: 80, b: 50};
+      this.col = {r: 150, g: 50, b: 150};
     }
   }
   draw() {
@@ -137,10 +138,11 @@ class Contacts {
 }
 
 
-let N = 120;
+let N = 250;
 let first_step = true;
 function init() {
   first_step = true
+  center = createVector(x(50), y(60));
   switch(game_mode) {
     case 0:
       walls = [
@@ -156,12 +158,12 @@ function init() {
         cells.push( new Cell(0) );
       }
 
-      labels = ["Abstoßung",
-        "Verkleben",
-        "Platzmangel",
-        "Stress vermeiden",
-        "Zufall",
-        "Geruchspur", "Heterogenität","Schnelligkeit"]
+      labels = ["Repulsion",
+        "Adhesion",
+        "Confinement",
+        "Aligment",
+        "Noise",
+        "Chemotaxis", "Heterogeneity","Speed"]
     break;
 
     case 1:
@@ -170,7 +172,7 @@ function init() {
        //{pos: createVector(x(25), y(80)), normal: createVector(0.0, 1.0).rotate(radians(-0)), l: x(40)},
        // {pos: createVector(x(75), y(80)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
        // {pos: createVector(x(50), y(70)), normal: createVector(0.0, 1.0).rotate(radians(0)), l: x(40)},
-       {pos: createVector(x(50), y(95)), normal: createVector(0.0, -1.0), l: x(90)},
+        {pos: createVector(x(50), y(95)), normal: createVector(0.0, -1.0), l: x(90)},
         {pos: createVector(x(5), y(60)), normal: createVector(1.0, 0.0), l: y(70)},
         {pos: createVector(x(95), y(60)), normal: createVector(-1.0, 0.0), l: y(70)}]
       
@@ -189,14 +191,14 @@ function init() {
         cells[i].pos.y = random(y(30),y(90));
       }
 
-      labels = ["Abstoßung",
-        "Heterogenität",
-        "Stress vermeiden",
-        "Geruchssinn",
-        "Abstoßung",
-        "Heterogenität",
-        "Stress vermeiden",
-        "Geruchssinn",]
+      labels = ["Repulsion",
+        "Heterogeneity",
+        "Alignment",
+        "Chemotaxis",
+        "Repulsion",
+        "Heterogeneity",
+        "Alignment",
+        "Chemotaxis",]
       labels = ["Repulsion",
         "Adhesion",
         "Alignment",
@@ -402,35 +404,38 @@ const modeTumble = 1;
 const modeCIL = 2;
 const modeCluster = 3;
 const tf = 1000;
+const sc = 0.8;
 
 function expRand(rate) {
   return random() <= (1.0 - exp(-deltaTime / (rate * tf) ));
 }
 
 let p_def = {
-  r: 20,
-  r_spread: 5, 
-  chemo: 0.1,
-  run_speed: 1.2, 
-  tumble_speed: 0.5, 
-  cil_speed: 0.7, 
-  cluster_speed: 0.8, 
+  r: 20 * sc,
+  r_spread: 10 * sc, 
+  chemo: 0.0,
+  run_speed: 0.8 * sc, 
+  tumble_speed: 0.5 * sc, 
+  cil_speed: 0.7 * sc, 
+  cluster_speed: 0.5 * sc, 
   run_dur: 15.0, 
   tumble_dur: 6.0, 
   rotation_dur: 2.0, 
   cil_dur: 5.0,
-  new_adh_dur: 3.0, 
-  break_adh_dur: 12.0, 
+  new_adh_dur: 2.0, 
+  new_cross_adh_dur : 5.0,
+  break_adh_dur: 8.0, 
   cntc_dur: 1.0,
-  diff_coef: 0.02,  
+  diff_coef: 0.02 * sc,  
   adh_stiffness: 0.02,
-  plitho_align: 50,
+  plitho_align: 80,
   plitho_max: 50,
-  plitho_min: 0.1,
-  plitho_spread: 3.14/2,
+  plitho_min: 4.0,
+  plitho_spread: 3.14/10,
   plitho_dur: 3,
-  soft_rep: 0.2,
-  wall_rep: 0.2,
+  soft_rep: 0.2 / sc,
+  wall_rep: 0.2 / sc,
+  center_attc: 0.005 / sc,
   n_substeps: 10,
   mu: 2
 };
@@ -453,7 +458,7 @@ function timeStep() {
         if( cells[i].type == 0 )
         {
           cells[i].r_s = p.r + p.r_spread * (pow(cells[i].rand,2) - 0.5);
-          cells[i].r_h = cells[i].r_s/2;
+          cells[i].r_h = cells[i].r_s * 0.4;
         }
       }
       p.plitho_align = 2*sl_3.val * p_def.plitho_align;
@@ -467,7 +472,7 @@ function timeStep() {
         if( cells[i].type == 1 )
         {
           cells[i].r_s = p.r + p2.r_spread * (pow(cells[i].rand,2) - 0.5);
-          cells[i].r_h = cells[i].r_s/2;
+          cells[i].r_h = cells[i].r_s * 0.4;
         }
       }
       p2.plitho_align = 2*sl_7.val * p_def.plitho_align;
@@ -514,7 +519,9 @@ function timeStep() {
     for( let i = 0; i < cells.length; ++i) {
       for( let j = 0; j < i; ++j) {
         const Rij = cells[i].r_s + cells[j].r_s;
-        if( cells[i].type == cells[j].type && pv.dist(cells[i].pos, cells[j].pos) < Rij && expRand(P(i).new_adh_dur) ) {
+        if( cells[i].type == cells[j].type 
+          && pv.dist(cells[i].pos, cells[j].pos) < Rij && expRand(P(i).new_adh_dur) || 
+          ( cells[i].type != cells[j].type && pv.dist(cells[i].pos, cells[j].pos) < Rij && expRand(P(i).new_cross_adh_dur) ) ) {
           cnts.addContact(i, j);
         }
       }
@@ -618,6 +625,12 @@ function timeStep() {
         const angl = xica.angleBetween(cells[i].pol);
         cells[i].pol.setHeading(cells[i].pol.heading() - dt/100 * P(i).chemo *angl );
       }
+
+      if ( p.center_attc > 0 ) {
+        const xic = pv.sub(center, cells[i].pos);
+        xic.mult(p.center_attc);
+        cells[i].f.add(xic);
+      }
     }
 
     for(let i = 0; i < cells.length; ++i) {
@@ -626,8 +639,8 @@ function timeStep() {
       for(let j = 0; j < i; ++j) {
         const xixj = pv.sub( cells[j].pos, cells[i].pos );
         if ( cnts.hasContact(i, j) ) {
-          cells[i].f.add( pv.mult(xixj, p.adh_stiffness ) );
-          cells[j].f.sub( pv.mult(xixj, p.adh_stiffness ) );
+          cells[i].f.add( pv.mult(xixj, P(i).adh_stiffness ) );
+          cells[j].f.sub( pv.mult(xixj, P(i).adh_stiffness ) );
         }
 
         const d = pv.dist(cells[j].pos, cells[i].pos);
@@ -705,7 +718,7 @@ function timeStep() {
 
 
 function draw() {
-  background(00);
+  background(0);
   strokeWeight(2);
   noStroke();
   textSize(16);
